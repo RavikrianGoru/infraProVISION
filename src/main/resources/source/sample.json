@@ -1,0 +1,206 @@
+{
+    "name": "BZID",
+    "url": "https://example.com/root",
+    "status": "Active",
+    "data": [
+        "some data1",
+        "some data2",
+        "some data3"
+    ],
+    "children": [
+        {
+            "name": "RIT1",
+            "url": "https://example.com/child2",
+            "status": "Decommissioned",
+            "data": [
+                "some data1",
+                "some data2",
+                "some data3"
+            ],
+            "children": [
+                {
+                    "name": "RIT2",
+                    "url": "https://example.com/child2",
+                    "status": "Cancelled",
+                    "data": [
+                        "some data1",
+                        "some data2",
+                        "some data3"
+                    ],
+                    "children": [
+                        {
+                            "name": "RIT1",
+                            "url": "https://example.com/child2",
+                            "status": "Case Closed",
+                            "data": [
+                                "some data1",
+                                "some data2",
+                                "some data3"
+                            ],
+                            "children": [
+                                {
+                                    "name": "DEV",
+                                    "url": "https://example.com/child2",
+                                    "status": "Case Decommissioned",
+                                    "data": [
+                                        "some data1",
+                                        "some data2",
+                                        "some data3"
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Host1-Windows",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "DAO Approed",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "SIT",
+                                    "url": "https://example.com/child1",
+                                    "status": "IDR Review",
+                                    "data": [
+                                        "some data1",
+                                        "some data2",
+                                        "some data3"
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Host1-linux",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "Provisioning",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "DB1-MariaDB",
+                                            "url": "https://example.com/grandchild2",
+                                            "status": "Solutioning",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "UAT",
+                                    "url": "https://example.com/child2",
+                                    "status": "Completed",
+                                    "data": [
+                                        "some data1",
+                                        "some data2",
+                                        "some data3"
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Host1-linux",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "In Progress",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "DB1-MariaDB",
+                                            "url": "https://example.com/grandchild2",
+                                            "status": "winthdraw",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "Host2-linux",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "Solutioning",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "DB2-MariaDB",
+                                            "url": "https://example.com/grandchild2",
+                                            "status": "Active",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "PRD",
+                                    "url": "https://example.com/child2",
+                                    "status": "Rejected",
+                                    "data": [
+                                        "some data1",
+                                        "some data2",
+                                        "some data3"
+                                    ],
+                                    "children": [
+                                        {
+                                            "name": "Host1-linux",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "winthdraw",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "DB1-MariaDB",
+                                            "url": "https://example.com/grandchild2",
+                                            "status": "Completed",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "Host2-linux",
+                                            "url": "https://example.com/grandchild1",
+                                            "status": "Completed",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        },
+                                        {
+                                            "name": "DB2-MariaDB",
+                                            "url": "https://example.com/grandchild2",
+                                            "status": "Completed",
+                                            "data": [
+                                                "some data1",
+                                                "some data2",
+                                                "some data3"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
