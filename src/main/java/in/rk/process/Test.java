@@ -26,10 +26,10 @@ class Node {
 
 public class Test {
 
-	private static final String APPCODE_URL = "https://www.appcode.com";
 	private static final String APPCODE_ID_KEY = "Application Code";
 	private static final String APPCODE_PARENT_KEY = "LOBT";
 	private static final String APPCODE_STATUS_KEY = "Status";
+	private static final String APPCODE_URL = "https://www.appcode.com";
 
 	private static final String RIT_ID_KEY = "Case ID";
 	private static final String RIT_PARENT_KEY = "AppCode";
@@ -42,8 +42,22 @@ public class Test {
 	private static final String IDR_URL = "https://www.idr.com";
 	
 	
+	private static final String VIRTUAL_ID_KEY = "HOSTNAME";
+	private static final String VIRTUAL_PARENT_KEY = "ID";
+	private static final String VIRTUAL_STATUS_KEY = "STATUS";
 	private static final String VIRTUAL_URL = "https://www.virtual.com";
+
+
+	private static final String DATABASE_ID_KEY = "HOSTNAME";
+	private static final String DATABASE_PARENT_KEY = "ENVIRONMENT";
+	private static final String DATABASE_STATUS_KEY = "STATUS";
 	private static final String DATABASE_URL = "https://www.database.com";
+	
+	
+	
+	private static final String DEP_ID_KEY = "RECORD ID";
+	private static final String DEP_PARENT_KEY = "APP CODE";
+	private static final String DEP_STATUS_KEY = "STATUS";
 	private static final String DEP_URL = "https://www.dep.com";
 
 	public static List<Node> processAsNodeList(List<Map<String, String>> response, String idKey, String nameKey,
@@ -53,11 +67,25 @@ public class Test {
 				.collect(Collectors.toList());
 	}
 
+	public static List<Node> createNodeList(String id, String name, String url, String status, Map<String, String> data, List<Node> childs)
+	{
+		List<Node> nodeList = new ArrayList<>();
+		Node node = Node.builder()
+				.id(id)
+				.name(name)
+				.url(url)
+				.status(status)
+				.data(data)
+				.childs(childs)
+				.build();
+		nodeList.add(node);
+		return nodeList;
+	}
 	public static String convertNumber(String input) {
 		try {
 			double number = Double.parseDouble(input);
 			return String.format("%.0f", number);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return input;
 		}
 	}
@@ -69,7 +97,7 @@ public class Test {
 		appcodeResponse.add(
 				Map.of("Status", "active", "Application Code", "BZID", "platform", "Windows", "data1", "some data-1", "data2", "some data-2", "LOBT", "MOT"));
 		List<Node> appcodeNodes = processAsNodeList(appcodeResponse, APPCODE_ID_KEY, APPCODE_PARENT_KEY, APPCODE_URL, APPCODE_STATUS_KEY);
-
+		
 
 		List<Map<String, String>> ritResponse = new ArrayList<>();
 		ritResponse.add(
@@ -109,18 +137,78 @@ public class Test {
 		List<Node> idrNodes = processAsNodeList(idrResponse, IDR_ID_KEY, IDR_PARENT_KEY, IDR_URL, IDR_STATUS_KEY);
 		
 
-		// Print the nodes
-		//appcodeNodes.forEach(System.out::println);
-		//ritNodes.forEach(System.out::println);
-		
-		// Traverse ritNodes and add matching nodes to childs list in appcodeNodes
-		addChildsToRootNodes(ritNodes, idrNodes);
+	
+		List<Map<String, String>> virtualResponse = new ArrayList<>();
+		virtualResponse.add(
+				Map.of("STATUS", "ACTIVE", "ID", "BZID", "HOSTNAME", "x01sabcd", "data1", "Some data1"));
 
-		addChildsToRootNodes(appcodeNodes, ritNodes);
+		virtualResponse.add(
+				Map.of("STATUS", "DISPOSED", "ID", "BZID", "HOSTNAME", "x01babcd", "data2", "Some data2"));
+
+		virtualResponse.add(
+				Map.of("STATUS", "ACTIVE", "ID", "BZID", "HOSTNAME", "x01gabcd", "data1", "Some data1"));
+
+		virtualResponse.add(
+				Map.of("STATUS", "DISPOSED", "ID", "BZID", "HOSTNAME", "x01tabcd", "data1", "Some data1"));
+
+		virtualResponse.add(
+				Map.of("STATUS", "DISPOSED", "ID", "BZID", "HOSTNAME", "w01sabcd", "data1", "Some data1"));
+
+		List<Node> virtualNodes = processAsNodeList(virtualResponse, VIRTUAL_ID_KEY, VIRTUAL_PARENT_KEY, VIRTUAL_URL, VIRTUAL_STATUS_KEY);
+		
+		
+		List<Map<String, String>> databaseResponse = new ArrayList<>();
+		databaseResponse.add(
+				Map.of("STATUS", "ACTIVE", "ENVIRONMENT", "SIT", "HOSTNAME", "x01sxyzx", "data1", "Some data1"));
+
+		databaseResponse.add(
+				Map.of("STATUS", "DISPOSED", "ENVIRONMENT", "UAT", "HOSTNAME", "x01bxyzx", "data2", "Some data2"));
+
+		databaseResponse.add(
+				Map.of("STATUS", "ACTIVE", "ENVIRONMENT", "PROD", "HOSTNAME", "x01gxyzx", "data1", "Some data1"));
+
+		databaseResponse.add(
+				Map.of("STATUS", "DISPOSED", "ENVIRONMENT", "SIT", "HOSTNAME", "x01txyzx", "data1", "Some data1"));
+
+		databaseResponse.add(
+				Map.of("STATUS", "DISPOSED", "ENVIRONMENT", "UAT", "HOSTNAME", "w01sxyzx", "data1", "Some data1"));
+		
+		List<Node> databaseNodes = processAsNodeList(databaseResponse, DATABASE_ID_KEY, DATABASE_PARENT_KEY, DATABASE_URL, DATABASE_STATUS_KEY);	
+		
+		List<Map<String, String>> depResponse = new ArrayList<>();
+		depResponse.add(
+				Map.of("STATUS", "APPROVED", "RECORD ID", "DEP0001", "APP CODE", "BZID", "data1", "Some data1"));
+
+		depResponse.add(
+				Map.of("STATUS", "REJECTED", "RECORD ID", "DEP0002", "APP CODE", "BZID", "data2", "Some data2"));
+
+		depResponse.add(
+				Map.of("STATUS", "APPROVED", "RECORD ID", "DEP0003", "APP CODE", "BZID", "data1", "Some data1"));
+
+		depResponse.add(
+				Map.of("STATUS", "CLOSED", "RECORD ID", "DEP0004", "APP CODE", "BZID", "data1", "Some data1"));
+
+		depResponse.add(
+				Map.of("STATUS", "APPROVED", "RECORD ID", "DEP0005", "APP CODE", "BZID", "data1", "Some data1"));
+		
+		List<Node> depNodes = processAsNodeList(depResponse, DEP_ID_KEY, DEP_PARENT_KEY, DEP_URL, DEP_STATUS_KEY);
+		
+		//Case-1
+		//addChildsToRootNodes(ritNodes, idrNodes);
+		//addChildsToRootNodes(appcodeNodes, ritNodes);
 		// Print the nodes
 		appcodeNodes.forEach(System.out::println);
-		
-
+		System.out.println("------------------");
+		ritNodes.forEach(System.out::println);
+		System.out.println("------------------");
+		idrNodes.forEach(System.out::println);
+		System.out.println("------------------");
+		virtualNodes.forEach(System.out::println);
+		System.out.println("------------------");
+		databaseNodes.forEach(System.out::println);
+		System.out.println("------------------");
+		depNodes.forEach(System.out::println);
+		System.out.println("------------------");
 	}
 
 	private static void addChildsToRootNodes(List<Node> rootNode, List<Node> childNode) {
