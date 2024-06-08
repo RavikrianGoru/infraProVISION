@@ -5,26 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class Node {
-	private String id;
-	private String name;
-	private String url;
-	private String status;
-	private Map<String, String> data;
-	@Builder.Default
-	private List<Node> childs = new ArrayList<>();
-}
 
-public class Test {
+public class DataProcessor {
 
 	private static final String APPCODE_ID_KEY = "Application Code";
 	private static final String APPCODE_PARENT_KEY = "LOBT";
@@ -56,14 +40,14 @@ public class Test {
 	private static final String DEP_STATUS_KEY = "STATUS";
 	private static final String DEP_URL = "https://www.dep.com";
 
-	public static List<Node> processAsNodeList(List<Map<String, String>> response, String idKey, String nameKey,
+	private List<Node> processAsNodeList(List<Map<String, String>> response, String idKey, String nameKey,
 			String url, String statusKey) {
 		return response.stream().map(element -> new Node(convertNumber(element.get(idKey)),
 				convertNumber(element.get(nameKey)), url, element.get(statusKey), element, new ArrayList<Node>()))
 				.collect(Collectors.toList());
 	}
 
-	public static List<Node> createSingleNodeList(String id, String name, String url, String status,
+	private List<Node> createSingleNodeList(String id, String name, String url, String status,
 			Map<String, String> data, List<Node> childs) {
 		List<Node> nodeList = new ArrayList<>();
 		Node node = Node.builder().id(id).name(name).url(url).status(status).data(data).childs(childs).build();
@@ -71,7 +55,7 @@ public class Test {
 		return nodeList;
 	}
 
-	public static String convertNumber(String input) {
+	private String convertNumber(String input) {
 		try {
 			double number = Double.parseDouble(input);
 			return String.format("%.0f", number);
@@ -80,14 +64,16 @@ public class Test {
 		}
 	}
 
-	public static void main(String[] args) {
-
+	public Node collectData()
+	{
 		List<Map<String, String>> appcodeResponse = new ArrayList<>();
 		appcodeResponse.add(Map.of("Status", "active", "Application Code", "BZID", "platform", "Windows", "data1",
 				"some data-1", "data2", "some data-2", "LOBT", "MOT"));
 		List<Node> appcodeNodes = processAsNodeList(appcodeResponse, APPCODE_ID_KEY, APPCODE_PARENT_KEY, APPCODE_URL,
 				APPCODE_STATUS_KEY);
 
+		return appcodeNodes.get(0);
+		/*
 		List<Map<String, String>> ritResponse = new ArrayList<>();
 		ritResponse.add(
 				Map.of("Status", "DAO Rejected", "AppCode", "BZID", "Case ID", "1.0180379E7", "data1", "Some data1"));
@@ -190,8 +176,9 @@ public class Test {
 		System.out.println("------------------");
 		depNodes.forEach(System.out::println);
 		System.out.println("------------------");
+		
+		*/
 	}
-
 	private static void addChildsToRootNodes(List<Node> rootNodes, List<Node> childNodes) {
 		childNodes.forEach(eachChildNode -> {
 			rootNodes.stream().filter(eachRootNode -> eachChildNode.getName().equals(eachRootNode.getId())).findFirst()
