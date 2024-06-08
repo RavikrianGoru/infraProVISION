@@ -1,225 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tree Graph with D3.js</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tree Graph with D3.js</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
 
-        h1 {
-            text-align: center;
-        }
+		h1 {
+			text-align: center;
+		}
 
-        #tree-container {
-            width: 100%;
-            height: 600px;
-        }
+		#tree-container {
+			width: 100%;
+			height: 600px;
+		}
 
-        .node circle {
-            fill: #fff;
-            stroke: steelblue;
-            stroke-width: 3px;
-        }
+		.node circle {
+			fill: #fff;
+			stroke: steelblue;
+			stroke-width: 3px;
+		}
 
-        .node text {
-            font: 12px sans-serif;
-        }
+		.node text {
+			font: 12px sans-serif;
+		}
 
-        .link {
-            fill: none;
-            stroke: #ccc;
-            stroke-width: 2px;
-        }
+		.link {
+			fill: none;
+			stroke: #ccc;
+			stroke-width: 2px;
+		}
 
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            width: 200px;
-            padding: 8px;
-            font: 12px sans-serif;
-            background: lightsteelblue;
-            border: 0;
-            border-radius: 8px;
-            pointer-events: none;
-            opacity: 0;
-        }
-    </style>
+		.tooltip {
+			position: absolute;
+			text-align: center;
+			width: 200px;
+			padding: 8px;
+			font: 12px sans-serif;
+			background: lightsteelblue;
+			border: 0;
+			border-radius: 8px;
+			pointer-events: none;
+			opacity: 0;
+		}
+	</style>
 </head>
+
 <body>
-    <h1>Tree Graph</h1>
-    <div id="tree-container"></div>
-    <div id="tooltip" class="tooltip"></div>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script>
-        const treeData = {
-            "id": "BZID",
-            "name": "MOT",
-            "url": "https://www.appcode.com",
-            "status": "active",
-            "data": {
-                "data2": "some data-2",
-                "LOBT": "MOT",
-                "Status": "active",
-                "platform": "Windows",
-                "data1": "some data-1",
-                "Application Code": "BZID"
-            },
-            "childs": [
-                {
-                    "id": "10180379",
-                    "name": "BZID",
-                    "url": "https://www.rit.com",
-                    "status": "DAO Rejected",
-                    "data": {
-                        "AppCode": "BZID",
-                        "data1": "Some data1",
-                        "Status": "DAO Rejected",
-                        "Case ID": "1.0180379E7"
-                    },
-                    "childs": []
-                },
-                {
-                    "id": "10180378",
-                    "name": "BZID",
-                    "url": "https://www.rit.com",
-                    "status": "Rejected",
-                    "data": {
-                        "AppCode": "BZID",
-                        "data2": "Some data2",
-                        "Status": "Rejected",
-                        "Case ID": "1.0180378E7"
-                    },
-                    "childs": []
-                },
-                {
-                    "id": "20180379",
-                    "name": "BZID",
-                    "url": "https://www.rit.com",
-                    "status": "Case Closed",
-                    "data": {
-                        "AppCode": "BZID",
-                        "data1": "Some data1",
-                        "Status": "Case Closed",
-                        "Case ID": "2.0180379E7"
-                    },
-                    "childs": []
-                },
-                {
-                    "id": "30180379",
-                    "name": "BZID",
-                    "url": "https://www.rit.com",
-                    "status": "Case Rejected",
-                    "data": {
-                        "AppCode": "BZID",
-                        "data1": "Some data1",
-                        "Status": "Case Rejected",
-                        "Case ID": "3.0180379E7"
-                    },
-                    "childs": []
-                },
-                {
-                    "id": "40180379",
-                    "name": "BZID",
-                    "url": "https://www.rit.com",
-                    "status": "Rejected",
-                    "data": {
-                        "AppCode": "BZID",
-                        "data1": "Some data1",
-                        "Status": "Rejected",
-                        "Case ID": "4.0180379E7"
-                    },
-                    "childs": []
-                }
-            ]
-        };
+	<h1>Tree Graph</h1>
+	<div id="tree-container"></div>
+	<div id="tooltip" class="tooltip"></div>
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script>
+		const treeData = {
+			"id": "BZID",
+			"name": "MOT",
+			"url": "https://www.appcode.com",
+			"status": "active",
+			"data": {
+				"data2": "some data-2",
+				"LOBT": "MOT",
+				"Status": "active",
+				"platform": "Windows",
+				"data1": "some data-1",
+				"Application Code": "BZID"
+			},
+			"childs": [
+				{
+					"id": "10180379",
+					"name": "BZID",
+					"url": "https://www.rit.com",
+					"status": "DAO Rejected",
+					"data": {
+						"AppCode": "BZID",
+						"data1": "Some data1",
+						"Status": "DAO Rejected",
+						"Case ID": "1.0180379E7"
+					},
+					"childs": [
+						{
+							"id": "2002",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-        function renderTree(treeData) {
-            const colorByStatus = {
-                "Active": "green",
-                "Completed": "green",
-                "DAO Approed": "green",
-                "Application HandOver": "green",
-                "Decommissioned": "red",
-                "Case Closed": "red",
-                "Case Decommissioned": "red",
-                "Case Rejected": "red",
-                "DAO Rejected": "red",
-                "Rejected": "red",
-                "winthdraw": "red",
-                "Soulution Engineer Rejected": "red",
-                "Cancelled": "red",
-                "Case Cancelled": "red",
-                "IDR Review": "blue",
-                "Provisioning": "blue",
-                "Solutioning": "blue",
-                "Solutioning Only": "blue",
-                "Solutioning STP": "blue",
-                "In Progress": "blue"
-            };
+							]
+						},
+						{
+							"id": "2003",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-            const margin = { top: 20, right: 120, bottom: 20, left: 120 },
-                width = 960 - margin.right - margin.left,
-                height = 600 - margin.top - margin.bottom;
+							]
+						}
+					]
+				},
+				{
+					"id": "10180378",
+					"name": "BZID",
+					"url": "https://www.rit.com",
+					"status": "Rejected",
+					"data": {
+						"AppCode": "BZID",
+						"data2": "Some data2",
+						"Status": "Rejected",
+						"Case ID": "1.0180378E7"
+					},
+					"childs": [
+						{
+							"id": "3002",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-            const svg = d3.select("#tree-container").append("svg")
-                .attr("width", width + margin.right + margin.left)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+							]
+						},
+						{
+							"id": "3003",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-            const root = d3.hierarchy(treeData, d => d.childs);
+							]
+						}]
+				},
+				{
+					"id": "20180379",
+					"name": "BZID",
+					"url": "https://www.rit.com",
+					"status": "Case Closed",
+					"data": {
+						"AppCode": "BZID",
+						"data1": "Some data1",
+						"Status": "Case Closed",
+						"Case ID": "2.0180379E7"
+					},
+					"childs": []
+				},
+				{
+					"id": "30180379",
+					"name": "BZID",
+					"url": "https://www.rit.com",
+					"status": "Case Rejected",
+					"data": {
+						"AppCode": "BZID",
+						"data1": "Some data1",
+						"Status": "Case Rejected",
+						"Case ID": "3.0180379E7"
+					},
+					"childs": [
+						{
+							"id": "4002",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-            const treeLayout = d3.tree().size([height, width]);
+							]
+						},
+						{
+							"id": "4003",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
 
-            treeLayout(root);
+							]
+						}]
+				},
+				{
+					"id": "40180379",
+					"name": "BZID",
+					"url": "https://www.rit.com",
+					"status": "Rejected",
+					"data": {
+						"AppCode": "BZID",
+						"data1": "Some data1",
+						"Status": "Rejected",
+						"Case ID": "4.0180379E7"
+					},
+					"childs": [
+						{
+							"id": "5002",
+							"name": "BZID",
+							"url": "https://www.rit.com",
+							"status": "DAO Rejected",
+							"data": {
+								"AppCode": "BZID",
+								"data1": "Some data1",
+								"Status": "DAO Rejected",
+								"Case ID": "1.0180379E7"
+							},
+							"childs": [
+								{
+									"id": "601",
+									"name": "BZID",
+									"url": "https://www.rit.com",
+									"status": "DAO Rejected",
+									"data": {
+										"AppCode": "BZID",
+										"data1": "Some data1",
+										"Status": "DAO Rejected",
+										"Case ID": "1.0180379E7"
+									},
+									"childs": [
 
-            const link = svg.selectAll(".link")
-                .data(root.links())
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("d", d3.linkHorizontal()
-                    .x(d => d.y)
-                    .y(d => d.x));
+									]
+								},
+								{
+									"id": "602",
+									"name": "BZID",
+									"url": "https://www.rit.com",
+									"status": "DAO Rejected",
+									"data": {
+										"AppCode": "BZID",
+										"data1": "Some data1",
+										"Status": "DAO Rejected",
+										"Case ID": "1.0180379E7"
+									},
+									"childs": [
 
-            const node = svg.selectAll(".node")
-                .data(root.descendants())
-                .enter().append("g")
-                .attr("class", "node")
-                .attr("transform", d => `translate(${d.y},${d.x})`);
+									]
+								}
+							]
+						}]
+				}
+			]
+		};
 
-            const tooltip = d3.select("#tooltip");
+		function renderTree(treeData) {
+			const colorByStatus = {
+				"Active": "green",
+				"Completed": "green",
+				"DAO Approed": "green",
+				"Application HandOver": "green",
+				"Decommissioned": "red",
+				"Case Closed": "red",
+				"Case Decommissioned": "red",
+				"Case Rejected": "red",
+				"DAO Rejected": "red",
+				"Rejected": "red",
+				"winthdraw": "red",
+				"Soulution Engineer Rejected": "red",
+				"Cancelled": "red",
+				"Case Cancelled": "red",
+				"IDR Review": "blue",
+				"Provisioning": "blue",
+				"Solutioning": "blue",
+				"Solutioning Only": "blue",
+				"Solutioning STP": "blue",
+				"In Progress": "blue"
+			};
 
-            node.append("a")
-                .attr("xlink:href", d => d.data.url)
-                .append("circle")
-                .attr("r", 10)
-                .attr("fill", d => colorByStatus[d.data.status] || 'steelblue')
-                .on("mouseover", (event, d) => {
-                    const dataContent = d.data.data ? Object.entries(d.data.data).map(([key, value]) => `${key}: ${value}`).join('<br>') : 'No data available';
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                    tooltip.html(`Name: ${d.data.name}<br>Status: ${d.data.status}<br>URL: <a href="${d.data.url}" target="_blank">${d.data.url}</a><br>Data:<br>${dataContent}`)
-                        .style("left", (event.pageX + 5) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", () => {
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
+			const margin = {top: 20, right: 120, bottom: 20, left: 120},
+				width = 960 - margin.right - margin.left,
+				height = 600 - margin.top - margin.bottom;
 
-            node.append("text")
-                .attr("dy", 3)
-                .attr("x", d => d.data.childs && d.data.childs.length ? -12 : 12)
-                .style("text-anchor", d => d.data.childs && d.data.childs.length ? "end" : "start")
-                .text(d => d.data.name);
-        }
+			const svg = d3.select("#tree-container").append("svg")
+				.attr("width", width + margin.right + margin.left)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        renderTree(treeData);
-    </script>
+			const root = d3.hierarchy(treeData, d => d.childs);
+
+			const treeLayout = d3.tree().size([height, width]);
+
+			treeLayout(root);
+
+			const link = svg.selectAll(".link")
+				.data(root.links())
+				.enter().append("path")
+				.attr("class", "link")
+				.attr("d", d3.linkHorizontal()
+					.x(d => d.y)
+					.y(d => d.x));
+
+			const node = svg.selectAll(".node")
+				.data(root.descendants())
+				.enter().append("g")
+				.attr("class", "node")
+				.attr("transform", d => `translate(${d.y},${d.x})`);
+
+			const tooltip = d3.select("#tooltip");
+
+			node.append("a")
+				.attr("xlink:href", d => d.data.url)
+				.append("circle")
+				.attr("r", 10)
+				.attr("fill", d => colorByStatus[d.data.status] || 'steelblue')
+				.on("mouseover", (event, d) => {
+					const dataContent = d.data.data ? Object.entries(d.data.data).map(([key, value]) => `${key}: ${value}`).join('<br>') : 'No data available';
+					tooltip.transition()
+						.duration(200)
+						.style("opacity", .9);
+					tooltip.html(`Name: ${d.data.name}<br>Status: ${d.data.status}<br>URL: <a href="${d.data.url}" target="_blank">${d.data.url}</a><br>Data:<br>${dataContent}`)
+						.style("left", (event.pageX + 5) + "px")
+						.style("top", (event.pageY - 28) + "px");
+				})
+				.on("mouseout", () => {
+					tooltip.transition()
+						.duration(500)
+						.style("opacity", 0);
+				});
+
+			node.append("text")
+				.attr("dy", 3)
+				.attr("x", d => d.data.childs && d.data.childs.length ? -12 : 12)
+				.style("text-anchor", d => d.data.childs && d.data.childs.length ? "end" : "start")
+				.text(d => d.data.id);
+		}
+
+		renderTree(treeData);
+	</script>
 </body>
+
 </html>
