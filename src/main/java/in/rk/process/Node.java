@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Node {
+
+	private String tag;
 	private String id;
 	private String name;
 	private String url;

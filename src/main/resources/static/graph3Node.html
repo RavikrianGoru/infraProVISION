@@ -55,7 +55,6 @@
         }
 
         function renderTree(treeData) {
-	console.log("1");
 			const colorByStatus = {
 				"Active": "green",
 				"Completed": "green",
@@ -78,8 +77,6 @@
 				"Solutioning STP": "blue",
 				"In Progress": "blue"
 			};
-	console.log("2");
-
 			const margin = {top: 20, right: 120, bottom: 20, left: 120},
 				width = 960 - margin.right - margin.left,
 				height = 600 - margin.top - margin.bottom;
@@ -89,14 +86,10 @@
 				.attr("height", height + margin.top + margin.bottom)
 				.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	console.log("3");
-
+	
 			const root = d3.hierarchy(treeData, d => d.childs);
-console.log("4");
 			const treeLayout = d3.tree().size([height, width]);
-console.log("5");
 			treeLayout(root);
-console.log("6");
 			const link = svg.selectAll(".link")
 				.data(root.links())
 				.enter().append("path")
@@ -104,13 +97,11 @@ console.log("6");
 				.attr("d", d3.linkHorizontal()
 					.x(d => d.y)
 					.y(d => d.x));
-console.log("7");
 			const node = svg.selectAll(".node")
 				.data(root.descendants())
 				.enter().append("g")
 				.attr("class", "node")
 				.attr("transform", d => `translate(${d.y},${d.x})`);
-console.log("8");
 			const tooltip = d3.select("#tooltip");
 
 			node.append("a")
@@ -137,7 +128,7 @@ console.log("8");
 				.attr("dy", 3)
 				.attr("x", d => d.data.childs && d.data.childs.length ? -12 : 12)
 				.style("text-anchor", d => d.data.childs && d.data.childs.length ? "end" : "start")
-				.text(d => d.data.id);
+				.text(d => d.data.tag+"-"+d.data.id);
 		}
 
         fetchData();
