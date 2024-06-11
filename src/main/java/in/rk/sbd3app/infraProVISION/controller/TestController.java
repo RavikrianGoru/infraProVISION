@@ -3,9 +3,16 @@ package in.rk.sbd3app.infraProVISION.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import in.rk.process.Node;
@@ -177,15 +184,55 @@ public class TestController {
 		return appcodeNodes.get(0);
 	}
 	
+	private ConcurrentMap<String, Node> nodeDatabase = new ConcurrentHashMap<>();
+	
+	
+	@GetMapping("/one")
+	public void  getOne() {
+		log.info("Fetching testdata");
+		try {
+			Node rootNode=collectData();
+			nodeDatabase.put(rootNode.getId(), rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Error while Fetching json string data {}", e);
+		}
+	}
 	@GetMapping("/test")
 	public Node  getJsonString() {
 		log.info("Fetching testdata");
 		try {
-			return collectData() ;
+			return nodeDatabase.get("BZID") ;
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error("Error while Fetching json string data {}", e);
 		}
 		return null;
 	}
+	 @PutMapping("/edit")
+	    public ResponseEntity<Void> editNode(@RequestBody Node updatedNode) {
+	        nodeDatabase.put(updatedNode.getId(), updatedNode);
+	        return new ResponseEntity<>(HttpStatus.OK);
+	    }
+
+	    @PostMapping("/clone")
+	    public ResponseEntity<Void> cloneNode(@RequestBody Node node) {
+	        Node clonedNode = Node.builder()
+	                .tag(node.getTag())
+	                .id("clone-" + node.getId())
+	                .name(node.getName() + " (Clone)")
+	                .url(node.getUrl())
+	                .status(node.getStatus())
+	                .data(node.getData())
+	                .build();
+	        nodeDatabase.put(clonedNode.getId(), clonedNode);
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+	    }
+
+	    @PostMapping("/new")
+	    public ResponseEntity<Void> createNode(@RequestBody Node node) {
+	        nodeDatabase.put(node.getId(), node);
+	        return new ResponseEntity<>(HttpStatus.CREATED);
+	    }
+
 }

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directed Tree with Links and Tooltips</title>
+    <style>
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: auto;
+            height: auto;
+            padding: 5px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            box-shadow: 0px 0px 2px #000;
+            z-index: 1000;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .context-menu-item:hover {
+            background-color: #ddd;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        form input,
+        form button {
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="tree-container"></div>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" id="view">View</div>
+        <div class="context-menu-item" id="edit">Edit</div>
+        <div class="context-menu-item" id="clone">Clone</div>
+        <div class="context-menu-item" id="new">New</div>
+    </div>
+
+    <div id="form-container">
+        <form id="node-form" style="display: none;">
+            <input type="hidden" id="form-mode">
+            <div>
+                <label>ID: </label><input type="text" id="node-id" required>
+            </div>
+            <div>
+                <label>Tag: </label><input type="text" id="tag" required>
+            </div>
+            <div>
+                <label>Name: </label><input type="text" id="name" required>
+            </div>
+            <div>
+                <label>URL: </label><input type="text" id="url" required>
+            </div>
+            <div>
+                <label>Status: </label><input type="text" id="status" required>
+            </div>
+            <div id="data-fields"></div>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="cancelForm()">Cancel</button>
+        </form>
+    </div>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:8080/test');
+                const data = await response.json();
+                renderTree(data);
+            } catch (error) {
+                console.error('Error fetching the tree data:', error);
+            }
+        }
+
+        function renderTree(treeData) {
+            const colorByStatus = {
+                "Active": "green",
+                "Completed": "green",
+                "DAO Approved": "green",
+                "Application HandOver": "green",
+                "Decommissioned": "red",
+                "Case Closed": "red",
+                "Case Decommissioned": "red",
+                "Case Rejected": "red",
+                "DAO Rejected": "red",
+                "Rejected": "red",
+                "Withdrawn": "red",
+                "Solution Engineer Rejected": "red",
+                "Cancelled": "red",
+                "Case Cancelled": "red",
+                "IDR Review": "blue",
+                "Provisioning": "blue",
+                "Solutioning": "blue",
+                "Solutioning Only": "blue",
+                "Solutioning STP": "blue",
+                "In Progress": "blue"
+            };
+
+            const margin = { top: 20, right: 120, bottom: 20, left: 120 },
+                width = 960 - margin.right - margin.left,
+                height = 600 - margin.top - margin.bottom;
+
+            const svg = d3.select("#tree-container").append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            const root = d3.hierarchy(treeData, d => d.childs);
+
+            const treeLayout = d3.tree().size([height, width]);
+            treeLayout(root);
+
+            const link = svg.selectAll(".link")
+                .data(root.links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x));
+
+            const node = svg.selectAll(".node")
+                .data(root.descendants())
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.y},${d.x})`)
+                .on("contextmenu", (event, d) => {
+                    event.preventDefault();
+                    showContextMenu(event, d);
+                });
+
+            const tooltip = d3.select("#tooltip");
+
+            node.append("a")
+                .attr("xlink:href", d => d.data.url)
+                .append("circle")
+                .attr("r", 10)
+                .attr("fill", d => colorByStatus[d.data.status] || 'steelblue')
+                .on("mouseover", (event, d) => {
+                    const dataContent = d.data.data ? Object.entries(d.data.data).map(([key, value]) => `${key}: ${value}`).join('<br>') : 'No data available';
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Name: ${d.data.name}<br>Status: ${d.data.status}<br>URL: <a href="${d.data.url}" target="_blank">${d.data.url}</a><br>Data:<br>${dataContent}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            node.append("text")
+                .attr("dy", 3)
+                .attr("x", d => d.data.childs && d.data.childs.length ? -12 : 12)
+                .style("text-anchor", d => d.data.childs && d.data.childs.length ? "end" : "start")
+                .text(d => d.data.tag + "-" + d.data.id);
+        }
+
+        function showContextMenu(event, d) {
+            const menu = document.getElementById('context-menu');
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+
+            document.getElementById('view').onclick = () => showForm(d.data, 'view');
+            document.getElementById('edit').onclick = () => showForm(d.data, 'edit');
+            document.getElementById('clone').onclick = () => showForm(d.data, 'clone');
+            document.getElementById('new').onclick = () => showForm(null, 'new');
+        }
+
+        function showForm(data, mode) {
+            const form = document.getElementById('node-form');
+            const nodeId = document.getElementById('node-id');
+            const tag = document.getElementById('tag');
+            const name = document.getElementById('name');
+            const url = document.getElementById('url');
+            const status = document.getElementById('status');
+            const dataFields = document.getElementById('data-fields');
+            
+            document.getElementById('form-mode').value = mode;
+
+            if (mode === 'new' || mode === 'clone') {
+                nodeId.value = '';
+                tag.value = '';
+                name.value = '';
+                url.value = '';
+                status.value = '';
+                dataFields.innerHTML = '';
+                nodeId.readOnly = false;
+            } else {
+                nodeId.value = data.id;
+                tag.value = data.tag;
+                name.value = data.name;
+                url.value = data.url;
+                status.value = data.status;
+
+                dataFields.innerHTML = '';
+                Object.entries(data.data).forEach(([key, value]) => {
+                    const div = document.createElement('div');
+                    const label = document.createElement('label');
+                    label.textContent = `${key}: `;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = key;
+                    input.value = value;
+                    div.appendChild(label);
+                    div.appendChild(input);
+                    dataFields.appendChild(div);
+                });
+                nodeId.readOnly = true;
+            }
+
+            if (mode === 'view') {
+                nodeId.readOnly = true;
+                tag.readOnly = true;
+                name.readOnly = true;
+                url.readOnly = true;
+                status.readOnly = true;
+                Array.from(dataFields.getElementsByTagName('input')).forEach(input => input.readOnly = true);
+            } else {
+                nodeId.readOnly = mode !== 'new';
+                tag.readOnly = false;
+                name.readOnly = false;
+                url.readOnly = false;
+                status.readOnly = false;
+                Array.from(dataFields.getElementsByTagName('input')).forEach(input => input.readOnly = false);
+            }
+
+            form.style.display = 'block';
+        }
+
+        function cancelForm() {
+            document.getElementById('node-form').style.display = 'none';
+        }
+
+        document.getElementById('node-form').onsubmit = async function (event) {
+            event.preventDefault();
+            const mode = document.getElementById('form-mode').value;
+            const id = document.getElementById('node-id').value;
+            const tag = document.getElementById('tag').value;
+            const name = document.getElementById('name').value;
+            const url = document.getElementById('url').value;
+            const status = document.getElementById('status').value;
+
+            const dataFields = document.getElementById('data-fields').getElementsByTagName('input');
+            const data = {};
+            for (let i = 0; i < dataFields.length; i++) {
+                data[dataFields[i].name] = dataFields[i].value;
+            }
+
+            let apiUrl;
+            let method;
+
+            if (mode === 'edit') {
+                apiUrl = `/api/nodes/edit/${id}`;
+                method = 'PUT';
+            } else if (mode === 'clone') {
+                apiUrl = `/api/nodes/clone/${id}`;
+                method = 'POST';
+            } else if (mode === 'new') {
+                apiUrl = `/api/nodes/new`;
+                method = 'POST';
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ tag, name, url, status, data })
+                });
+
+                if (response.ok) {
+                    alert('Operation successful');
+                    location.reload();
+                } else {
+                    alert('Operation failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        };
+
+        window.onclick = function () {
+            document.getElementById('context-menu').style.display = 'none';
+        }
+
+        fetchData();
+    </script>
+</body>
+
+</html>

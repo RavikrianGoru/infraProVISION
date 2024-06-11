@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directed Tree with Links and Tooltips</title>
+    <style>
+        .node text {
+            font: 12px sans-serif;
+        }
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: auto;
+            height: auto;
+            padding: 5px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div id="tree-container"></div>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="context-menu" class="context-menu">
+        <div class="context-menu-item" id="view">View</div>
+        <div class="context-menu-item" id="edit">Edit</div>
+        <div class="context-menu-item" id="clone">Clone</div>
+        <div class="context-menu-item" id="new">New</div>
+    </div>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:8080/test');
+                const data = await response.json();
+                renderTree(data);
+            } catch (error) {
+                console.error('Error fetching the tree data:', error);
+            }
+        }
+
+        function renderTree(treeData) {
+            const colorByStatus = {
+                "Active": "green",
+                "Completed": "green",
+                "DAO Approved": "green",
+                "Application HandOver": "green",
+                "Decommissioned": "red",
+                "Case Closed": "red",
+                "Case Decommissioned": "red",
+                "Case Rejected": "red",
+                "DAO Rejected": "red",
+                "Rejected": "red",
+                "Withdrawn": "red",
+                "Solution Engineer Rejected": "red",
+                "Cancelled": "red",
+                "Case Cancelled": "red",
+                "IDR Review": "blue",
+                "Provisioning": "blue",
+                "Solutioning": "blue",
+                "Solutioning Only": "blue",
+                "Solutioning STP": "blue",
+                "In Progress": "blue"
+            };
+
+            const margin = { top: 20, right: 120, bottom: 20, left: 120 },
+                width = 960 - margin.right - margin.left,
+                height = 600 - margin.top - margin.bottom;
+
+            const svg = d3.select("#tree-container").append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            const root = d3.hierarchy(treeData, d => d.childs);
+
+            const treeLayout = d3.tree().size([height, width]);
+            treeLayout(root);
+
+            const link = svg.selectAll(".link")
+                .data(root.links())
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x));
+
+            const node = svg.selectAll(".node")
+                .data(root.descendants())
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.y},${d.x})`)
+                .on("contextmenu", (event, d) => {
+                    event.preventDefault();
+                    showContextMenu(event, d);
+                });
+
+            const tooltip = d3.select("#tooltip");
+
+            node.append("a")
+                .attr("xlink:href", d => d.data.url)
+                .append("circle")
+                .attr("r", 10)
+                .attr("fill", d => colorByStatus[d.data.status] || 'steelblue')
+                .on("mouseover", (event, d) => {
+                    const dataContent = d.data.data ? Object.entries(d.data.data).map(([key, value]) => `${key}: ${value}`).join('<br>') : 'No data available';
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Name: ${d.data.name}<br>Status: ${d.data.status}<br>URL: <a href="${d.data.url}" target="_blank">${d.data.url}</a><br>Data:<br>${dataContent}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            node.append("text")
+                .attr("dy", 3)
+                .attr("x", d => d.data.childs && d.data.childs.length ? -12 : 12)
+                .style("text-anchor", d => d.data.childs && d.data.childs.length ? "end" : "start")
+                .text(d => d.data.tag + "-" + d.data.id);
+        }
+
+        function showContextMenu(event, d) {
+            const menu = document.getElementById('context-menu');
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+
+            document.getElementById('view').onclick = () => navigateToForm(d.data, 'view');
+            document.getElementById('edit').onclick = () => navigateToForm(d.data, 'edit');
+            document.getElementById('clone').onclick = () => navigateToForm(d.data, 'clone');
+            document.getElementById('new').onclick = () => navigateToForm(null, 'new', d.data.tag);
+        }
+
+        function navigateToForm(data, mode, tag) {
+            let url;
+            if (mode === 'new') {
+                url = `/${tag}/form/${mode}.html`;
+            } else {
+                url = `/${data.tag}/form/${mode}.html?id=${data.id}`;
+            }
+            window.location.href = url;
+        }
+
+        window.onclick = function (event) {
+            const menu = document.getElementById('context-menu');
+            if (event.target !== menu) {
+                menu.style.display = 'none';
+            }
+        };
+
+        fetchData();
+    </script>
+</body>
+</html>
