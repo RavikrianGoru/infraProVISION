@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Form</title>
+    <style>
+        form {
+            margin: 20px;
+        }
+        form div {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <form id="new-form">
+        <div>
+            <label for="node-id">ID: </label>
+            <input type="text" id="node-id">
+        </div>
+        <div>
+            <label for="tag">Tag: </label>
+            <input type="text" id="tag">
+        </div>
+        <div>
+            <label for="name">Name: </label>
+            <input type="text" id="name">
+        </div>
+        <div>
+            <label for="url">URL: </label>
+            <input type="text" id="url">
+        </div>
+        <div>
+            <label for="status">Status: </label>
+            <input type="text" id="status">
+        </div>
+        <div id="data-fields"></div>
+        <button type="button" onclick="submitNewForm()">Submit</button>
+    </form>
+
+    <script>
+        function submitNewForm() {
+            const id = document.getElementById('node-id').value;
+            const tag = document.getElementById('tag').value;
+            const name = document.getElementById('name').value;
+            const url = document.getElementById('url').value;
+            const status = document.getElementById('status').value;
+
+            const dataFields = document.getElementById('data-fields').children;
+            const data = {};
+            for (const field of dataFields) {
+                const input = field.querySelector('input');
+                data[input.id] = input.value;
+            }
+
+            const newNode = { id, tag, name, url, status, data };
+
+            fetch('http://localhost:8080/api/nodes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newNode)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Node created successfully');
+                    window.location.href = '/';
+                })
+                .catch(error => console.error('Error creating the node:', error));
+        }
+    </script>
+</body>
+</html>

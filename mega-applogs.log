@@ -1,0 +1,8 @@
+2024-06-13 02:35:07 - Starting InfraProVisionApplicationTests using Java 17 with PID 6352 (started by LENOVO in C:\Users\LENOVO\Desktop\PoC\infraProVISION)
+2024-06-13 02:35:07 - No active profile set, falling back to 1 default profile: "default"
+2024-06-13 02:35:12 - Adding welcome page: class path resource [static/index.html]
+2024-06-13 02:35:14 - Started InfraProVisionApplicationTests in 8.716 seconds (process running for 13.988)
+2024-06-13 02:45:25 - Starting InfraProVisionApplicationTests using Java 17 with PID 13148 (started by LENOVO in C:\Users\LENOVO\Desktop\PoC\infraProVISION)
+2024-06-13 02:45:25 - No active profile set, falling back to 1 default profile: "default"
+2024-06-13 02:45:30 - Adding welcome page: class path resource [static/index.html]
+2024-06-13 02:45:31 - Started InfraProVisionApplicationTests in 7.709 seconds (process running for 12.288)
